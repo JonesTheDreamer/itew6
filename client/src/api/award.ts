@@ -1,11 +1,11 @@
 import api from "@/lib/axios";
 import type {
   ApiItem,
-  ApiList,
+  // ApiList,
   Award,
   CreateAwardPayload,
-  Faculty,
-  FacultyFilters,
+  // Faculty,
+  // FacultyFilters,
 } from "@/types";
 
 // export const getFaculty = async (
