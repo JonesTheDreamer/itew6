@@ -15,11 +15,11 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*'],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:5173'],
+    'allowed_origins' => ['http://localhost:5173', 'https://itew6-k1ju.vercel.app/'],
 
     'allowed_origins_patterns' => [],
 
@@ -29,6 +29,5 @@ return [
 
     'max_age' => 86400,
 
-    'supports_credentials' => true,
 
 ];
