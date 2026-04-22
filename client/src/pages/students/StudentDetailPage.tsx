@@ -33,8 +33,6 @@ export default function StudentDetailPage() {
     enabled: !!id,
   });
 
-  console.log(student);
-
   const { data: allSkills = [] } = useQuery({
     queryKey: ["skills"],
     queryFn: getSkills,
