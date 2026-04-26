@@ -15,8 +15,13 @@ class AcademicStructureSeeder extends Seeder
         $this->seedCurricula();
         $this->seedCourses();
         $this->seedLessons();
-        $this->seedSchedules();
     }
+
+
+    public function seedSchedulesPublic(): void
+{
+    $this->seedSchedules();
+}
 
     private function seedColleges(): void
     {
@@ -196,53 +201,80 @@ class AcademicStructureSeeder extends Seeder
         }
     }
 
-    private function seedSchedules(): void
-    {
-        $curricula = DB::table('curriculum')->pluck('id', 'programId');
-        $sections  = DB::table('section')->get();
+private function seedSchedules(): void
+{
+    $curricula = DB::table('curriculum')->pluck('id', 'programId');
+    $sections  = DB::table('section')->get();
 
-        $timeSlots = [
-            ['07:30:00', '09:00:00'],
-            ['09:00:00', '10:30:00'],
-            ['10:30:00', '12:00:00'],
-            ['13:00:00', '14:30:00'],
-            ['14:30:00', '16:00:00'],
-            ['16:00:00', '17:30:00'],
-        ];
-        $rooms = ['CCS-101', 'CCS-102', 'CCS-103', 'CCS-201', 'CCS-202', 'CCS-LAB1', 'CCS-LAB2', 'CCS-LAB3', 'CCS-LAB4'];
+    // Map faculty by department to programs
+    $itFaculty  = DB::table('faculty')->where('department', 'Information Technology')->pluck('id')->toArray();
+    $csFaculty  = DB::table('faculty')->where('department', 'Computer Science')->pluck('id')->toArray();
+    $cpeFaculty = DB::table('faculty')->where('department', 'Computer Engineering')->pluck('id')->toArray();
 
-        $schedules = [];
-        foreach ($sections as $section) {
-            if (! isset($curricula[$section->programId])) {
-                continue;
-            }
-            $courses = DB::table('courses')
-                ->where('curriculumId', $curricula[$section->programId])
-                ->where('yearLevel', $section->yearLevel)
-                ->where('semester', $section->semester)
-                ->get();
+    $programs = DB::table('program')->pluck('name', 'id');
 
-            $i = 0;
-            foreach ($courses as $course) {
-                $roomIndex  = ($course->courseType === 'lecture_lab') ? (count($rooms) - 4 + ($i % 4)) : ($i % 5);
-                $schedules[] = [
-                    'sectionId'  => $section->id,
-                    'courseId'   => $course->id,
-                    'courseName' => $course->courseName,
-                    'timeStart'  => $timeSlots[$i % 6][0],
-                    'timeEnd'    => $timeSlots[$i % 6][1],
-                    'room'       => $rooms[$roomIndex],
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-                $i++;
-            }
+    $timeSlots = [
+        ['07:30:00', '09:00:00'],
+        ['09:00:00', '10:30:00'],
+        ['10:30:00', '12:00:00'],
+        ['13:00:00', '14:30:00'],
+        ['14:30:00', '16:00:00'],
+        ['16:00:00', '17:30:00'],
+    ];
+    $rooms = ['CCS-101', 'CCS-102', 'CCS-103', 'CCS-201', 'CCS-202', 'CCS-LAB1', 'CCS-LAB2', 'CCS-LAB3', 'CCS-LAB4'];
+
+    $schedules = [];
+    foreach ($sections as $section) {
+        if (!isset($curricula[$section->programId])) {
+            continue;
         }
 
-        foreach (array_chunk($schedules, 100) as $chunk) {
-            DB::table('schedule')->insert($chunk);
+        $programName = $programs[$section->programId] ?? '';
+
+        // Pick faculty pool based on program
+        $facultyPool = match(true) {
+            str_contains($programName, 'Information Technology') => $itFaculty,
+            str_contains($programName, 'Computer Science')       => $csFaculty,
+            str_contains($programName, 'Computer Engineering')   => $cpeFaculty,
+            default                                               => array_merge($itFaculty, $csFaculty, $cpeFaculty),
+        };
+
+        $courses = DB::table('courses')
+            ->where('curriculumId', $curricula[$section->programId])
+            ->where('yearLevel', $section->yearLevel)
+            ->where('semester', $section->semester)
+            ->get();
+
+        $i = 0;
+        foreach ($courses as $course) {
+            $roomIndex = ($course->courseType === 'lecture_lab')
+                ? (count($rooms) - 4 + ($i % 4))
+                : ($i % 5);
+
+            // Rotate through available faculty in the pool
+            $facultyId = !empty($facultyPool)
+                ? $facultyPool[$i % count($facultyPool)]
+                : null;
+
+            $schedules[] = [
+                'sectionId'  => $section->id,
+                'courseId'   => $course->id,
+                'courseName' => $course->courseName,
+                'timeStart'  => $timeSlots[$i % 6][0],
+                'timeEnd'    => $timeSlots[$i % 6][1],
+                'room'       => $rooms[$roomIndex],
+                'facultyId'  => $facultyId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+            $i++;
         }
     }
+
+    foreach (array_chunk($schedules, 100) as $chunk) {
+        DB::table('schedule')->insert($chunk);
+    }
+}
 
     private function getCoursePlans(): array
     {

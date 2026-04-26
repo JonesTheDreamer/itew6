@@ -22,6 +22,7 @@ use Illuminate\Notifications\Notifiable;
     'subdivision',
     'street',
     'barangay',
+    'role' ,
     'city',
     'province',
     'postalCode',

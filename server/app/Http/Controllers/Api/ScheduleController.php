@@ -12,13 +12,17 @@ class ScheduleController extends Controller
     public function __construct(private ScheduleRepository $repo) {}
 
     public function index(Request $request): JsonResponse
-    {
-        $data = $request->has('sectionId')
-            ? $this->repo->getBySection((int) $request->sectionId)
-            : $this->repo->getAll();
-
-        return response()->json(['data' => $data, 'message' => 'success']);
+{
+    if ($request->has('facultyId')) {
+        $data = $this->repo->getByFaculty((int) $request->facultyId);
+    } elseif ($request->has('sectionId')) {
+        $data = $this->repo->getBySection((int) $request->sectionId);
+    } else {
+        $data = []; // don't load all schedules without a filter
     }
+
+    return response()->json(['data' => $data, 'message' => 'success']);
+}
 
     public function byStudent(int $studentId): JsonResponse
     {

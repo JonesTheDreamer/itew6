@@ -59,6 +59,8 @@ export interface Faculty {
   email: string;
   mobileNumber?: string;
   age?: number;
+  birthProvince?: string; // ← add this
+  postalCode?: string; // ← add this
   birthDate?: string;
   city?: string;
   province?: string;
@@ -273,3 +275,35 @@ export type OrgMember = {
     };
   };
 };
+export interface Lesson {
+  id: number;
+  sectionId: number;
+  courseId: number;
+  facultyId: number;
+  course?: Course;
+  section?: Section;
+}
+
+export interface Section {
+  id: number;
+  sectionName: string;
+  yearLevel: number;
+  semester: number;
+  academicYear: string;
+  programId: number;
+  program?: Program;
+}
+
+export interface Schedule {
+  id: number;
+  sectionId: number;
+  courseId: number;
+  facultyId: number;
+  day: string;
+  courseName: string;
+  startTime: string;
+  endTime: string;
+  room?: string;
+  course?: Course;
+  section?: Section;
+}

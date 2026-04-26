@@ -19,6 +19,8 @@ class FacultyResource extends JsonResource
             'lastName' => $user?->lastName,
             'middleName' => $user?->middleName,
             'email' => $user?->email,
+            'birthProvince' => $user?->birthProvince,  // ← add this
+            'postalCode' => $user?->postalCode,        // ← add this
             'mobileNumber' => $user?->mobileNumber,
             'age' => $user?->age,
             'birthDate' => $user?->birthDate,

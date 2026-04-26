@@ -15,12 +15,30 @@ class ScheduleRepository extends BaseRepository
 
     public function getBySection(int $sectionId): Collection
     {
-        return Schedule::where('sectionId', $sectionId)->get();
+        return Schedule::with(['course', 'section'])
+            ->where('sectionId', $sectionId)
+            ->get();
     }
 
     public function getByStudent(int $studentId): Collection
     {
-        $sectionIds = StudentSection::where('studentId', $studentId)->pluck('sectionId');
-        return Schedule::whereIn('sectionId', $sectionIds)->get();
+        $sectionIds = StudentSection::where('studentId', $studentId)
+            ->pluck('sectionId');
+
+        return Schedule::with(['course', 'section'])
+            ->whereIn('sectionId', $sectionIds)
+            ->get();
+    }
+
+    public function getByFaculty(int $facultyId): Collection
+    {
+        return Schedule::with(['course', 'section'])
+            ->where('facultyId', $facultyId)
+            ->get();
+    }
+
+    public function getAll(): Collection
+    {
+        return Schedule::with(['course', 'section'])->get();
     }
 }

@@ -13,6 +13,12 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { login } from "@/api/auth";
 
+function getRoleRedirect(role: string) {
+  if (role === "faculty") return "/faculty/profile";
+  if (role === "student") return "/student";
+  return "/admin/students"; // default admin
+}
+
 export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -20,11 +26,15 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // If already logged in, redirect to correct area based on saved role
   useEffect(() => {
-    if (localStorage.getItem("auth_token")) {
-      navigate("/admin/students", { replace: true });
+    const token = localStorage.getItem("auth_token");
+    const userRaw = localStorage.getItem("auth_user");
+    if (token && userRaw) {
+      const user = JSON.parse(userRaw);
+      navigate(getRoleRedirect(user.role), { replace: true });
     }
-  }, [navigate]);
+  }, []); // ← empty deps, runs once on mount only
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -32,8 +42,12 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const response = await login({ email, password });
+
+      // Save both token AND user (with role) to localStorage
       localStorage.setItem("auth_token", response.token);
-      navigate("/admin/students", { replace: true });
+      localStorage.setItem("auth_user", JSON.stringify(response.user));
+
+      navigate(getRoleRedirect(response.user.role), { replace: true });
     } catch {
       setError("Invalid email or password.");
     } finally {
@@ -51,7 +65,7 @@ export default function LoginPage() {
             </div>
           </div>
           <CardTitle className="text-xl">CCS Profiling System</CardTitle>
-          <CardDescription>Admin Portal — Sign in to continue</CardDescription>
+          <CardDescription>Sign in to continue</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
