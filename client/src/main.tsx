@@ -6,10 +6,9 @@ import "./index.css";
 
 import AppLayout from "@/components/layout/AppLayout";
 import FacultyLayout from "@/components/layout/FacultyLayout";
-import AuthGuard from "@/components/shared/AuthGuard";
-import LoginPage from "@/pages/LoginPage";
+import AuthGuard from "./components/shared/AuthGuard";
+import LoginPage from "./pages/LoginPage";
 
-// Admin pages
 import StudentsPage from "@/pages/students/StudentsPage";
 import StudentDetailPage from "@/pages/students/StudentDetailPage";
 import AddStudentPage from "@/pages/students/AddStudentPage";
@@ -24,7 +23,6 @@ import OrganizationDetailPage from "@/pages/organizations/OrganizationDetailPage
 import QueryPage from "@/pages/QueryPage";
 import SkillsPage from "@/pages/SkillsPage";
 
-// Faculty portal pages
 import FacultyProfilePage from "./pages/faculty-portal/FacultyProfilePage";
 import FacultyLessonsPage from "./pages/faculty-portal/FacultyLessonPage";
 import FacultySchedulePage from "./pages/faculty-portal/FacultySchedulePage";
@@ -37,7 +35,6 @@ const queryClient = new QueryClient({
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
 
-  // ── Admin routes ──────────────────────────────────
   {
     path: "/admin",
     element: (
@@ -63,7 +60,6 @@ const router = createBrowserRouter([
     ],
   },
 
-  // ── Faculty portal routes ─────────────────────────
   {
     path: "/faculty",
     element: (
@@ -74,6 +70,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Navigate to="/faculty/profile" replace /> },
       { path: "profile", element: <FacultyProfilePage /> },
+      { path: "lessons", element: <FacultyLessonsPage /> },
       { path: "schedule", element: <FacultySchedulePage /> },
       { path: "awards", element: <FacultyAwardsPage /> },
     ],
@@ -81,11 +78,8 @@ const router = createBrowserRouter([
 
   { path: "*", element: <Navigate to="/login" replace /> },
 ]);
-
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  </StrictMode>,
+  <QueryClientProvider client={queryClient}>
+    <RouterProvider router={router} />
+  </QueryClientProvider>,
 );

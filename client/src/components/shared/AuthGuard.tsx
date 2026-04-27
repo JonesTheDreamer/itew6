@@ -1,3 +1,4 @@
+// src/components/shared/AuthGuard.tsx
 import { Navigate } from "react-router";
 
 interface AuthGuardProps {

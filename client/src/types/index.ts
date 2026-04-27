@@ -10,6 +10,7 @@ export interface AuthUser {
   middleName?: string;
   email: string;
   role: string;
+profile?: { id: number } | null;
 }
 
 export interface AuthResponse {
@@ -301,8 +302,8 @@ export interface Schedule {
   facultyId: number;
   day: string;
   courseName: string;
-  startTime: string;
-  endTime: string;
+  timeStart: string;
+  timeEnd: string;
   room?: string;
   course?: Course;
   section?: Section;
