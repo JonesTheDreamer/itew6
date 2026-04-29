@@ -25,6 +25,7 @@ class FacultyRequest extends FormRequest
             'employmentType' => ['nullable', 'string', 'max:50'],
             'monthlyIncome'  => ['nullable', 'numeric', 'min:0'],
             'department'     => ['nullable', 'string', 'max:100'],
+            'password' => ['nullable', 'string', 'min:8'],
         ];
     }
 }

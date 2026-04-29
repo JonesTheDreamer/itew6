@@ -33,33 +33,36 @@ class FacultyService
         return $this->facultyRepo->getStats();
     }
 
-    public function createWithUser(array $data): Faculty
-    {
-        return DB::transaction(function () use ($data) {
-            $user = $this->userRepo->create([
-                'firstName' => $data['firstName'],
-                'lastName' => $data['lastName'],
-                'middleName' => $data['middleName'] ?? null,
-                'age' => $data['age'] ?? null,
-                'birthDate' => $data['birthDate'] ?? null,
-                'mobileNumber' => $data['mobileNumber'] ?? null,
-                'email' => $data['email'],
-                'city' => $data['city'] ?? null,
-                'province' => $data['province'] ?? null,
-            ]);
+   public function createWithUser(array $data): Faculty
+{
+    return DB::transaction(function () use ($data) {
+        $user = $this->userRepo->create([
+            'firstName'     => $data['firstName'],
+            'lastName'      => $data['lastName'],
+            'middleName'    => $data['middleName'] ?? null,
+            'age'           => $data['age'] ?? null,
+            'birthDate'     => $data['birthDate'] ?? null,
+            'birthProvince' => $data['birthProvince'] ?? null,
+            'mobileNumber'  => $data['mobileNumber'] ?? null,
+            'email'         => $data['email'],
+            'city'          => $data['city'] ?? null,
+            'province'      => $data['province'] ?? null,
+            'postalCode'    => $data['postalCode'] ?? null,
+            'password'      => bcrypt($data['password'] ?? 'Welcome@123'), // <-- fix
+        ]);
 
-            $faculty = $this->facultyRepo->create([
-                'userId' => $user->id,
-                'position' => $data['position'] ?? null,
-                'employmentDate' => $data['employmentDate'] ?? null,
-                'employmentType' => $data['employmentType'] ?? null,
-                'monthlyIncome' => $data['monthlyIncome'] ?? null,
-                'department' => $data['department'] ?? null,
-            ]);
+        $faculty = $this->facultyRepo->create([
+            'userId'         => $user->id,
+            'position'       => $data['position'] ?? null,
+            'employmentDate' => $data['employmentDate'] ?? null,
+            'employmentType' => $data['employmentType'] ?? null,
+            'monthlyIncome'  => $data['monthlyIncome'] ?? null,
+            'department'     => $data['department'] ?? null,
+        ]);
 
-            return $this->facultyRepo->getById($faculty->id);
-        });
-    }
+        return $this->facultyRepo->getById($faculty->id);
+    });
+}
 
     public function updateWithUser(int $id, array $data): ?Faculty
     {
